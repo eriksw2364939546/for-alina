@@ -4,6 +4,7 @@ let inp = document.querySelector(".plans__inp")
 let btn = document.querySelector("#add__plans")
 let list = document.querySelector(".plans__list")
 let counter = document.querySelector(".counter span")
+let counterParagraph = document.querySelector(".counter") // Добавил для полного текста
 
 let plansList = []
 let plansComplete = []
@@ -14,6 +15,35 @@ let modalSave = document.querySelector(".modal__save-btn")
 let modalCancel = document.querySelector(".modal__cancel-btn")
 let modalInp = document.querySelector(".modal input")
 let select = document.querySelector("select")
+
+// Функция для склонения слова "план" (ДОБАВЛЕНА)
+function declinatePlans(count) {
+	const lastDigit = count % 10;
+	const lastTwoDigits = count % 100;
+
+	if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+		return 'планов';
+	}
+
+	if (lastDigit === 1) {
+		return 'план';
+	}
+
+	if (lastDigit >= 2 && lastDigit <= 4) {
+		return 'плана';
+	}
+
+	return 'планов';
+}
+
+// Функция для обновления счетчика с правильным склонением (ДОБАВЛЕНА)
+function updateCounterWithDeclination(count) {
+	if (counter && counterParagraph) {
+		counter.innerHTML = count;
+		const planWord = declinatePlans(count);
+		counterParagraph.innerHTML = `У вас есть <span>${count}</span> ${planWord}!`;
+	}
+}
 
 modalCancel.addEventListener("click", closeModal)
 
@@ -49,6 +79,8 @@ list.addEventListener("click", (event) => {
 			if (data.text) {
 				plansList.splice(index, 1)
 				renderWithFilter()
+				// Обновляем счетчик после удаления
+				updateCounterWithDeclination(plansList.length)
 			}
 		})
 	}
@@ -117,6 +149,8 @@ document.addEventListener("DOMContentLoaded", function () {
 				if (data.text) {
 					plansList.unshift(data)
 					renderPlans(plansList)
+					// Обновляем счетчик после добавления
+					updateCounterWithDeclination(plansList.length)
 				}
 			})
 			inp.style.border = "1px solid black"
@@ -128,7 +162,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function renderPlans(array) {
 	list.innerHTML = ""
-	counter.innerHTML = array.length
+
+	// Обновляем счетчик с правильным склонением
+	updateCounterWithDeclination(array.length)
 
 	array.forEach(element => {
 		let escapedValue = document.createElement('p')
@@ -206,13 +242,11 @@ getTodoList().then(data => {
 	if (data && data.length > 0) {
 		plansList = data.sort((a, b) => +b.id - +a.id)
 		renderPlans(plansList)
+		// Обновляем счетчик при загрузке
+		updateCounterWithDeclination(plansList.length)
 	}
 })
 
 function closeModal() {
 	modal.classList.remove("active-modal")
 }
-
-
-
-
