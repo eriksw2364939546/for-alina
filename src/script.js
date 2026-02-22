@@ -5,8 +5,8 @@ let authError = document.querySelector(".auth p")
 let authScreen = document.querySelector(".auth")
 let body = document.querySelector("body")
 
-let login = "anahit"
-let password = "imsayt"
+let login = "alina"
+let password = "s-dnyuxoy"
 
 authForm.addEventListener("submit", (e) => {
 	e.preventDefault()
@@ -25,11 +25,11 @@ authForm.addEventListener("submit", (e) => {
 })
 
 function saveUser() {
-	localStorage.setItem("anuta-site", JSON.stringify({ login, password }))
+	localStorage.setItem("alina-site", JSON.stringify({ login, password }))
 }
 
 function getUser() {
-	let data = JSON.parse(localStorage.getItem("anuta-site"))
+	let data = JSON.parse(localStorage.getItem("alina-site"))
 
 	if (data && data.login === login && data.password === password) {
 		authScreen.classList.add("hide")
