@@ -1,4 +1,5 @@
-// подключение к personal-data делаем здесь
+let PERSONAL_URL = null;
+
 let authForm = document.querySelector(".auth form")
 let inpLogin = document.querySelector(".auth .login")
 let inpPass = document.querySelector(".auth .password")
@@ -6,24 +7,28 @@ let authError = document.querySelector(".auth p")
 let authScreen = document.querySelector(".auth")
 let body = document.querySelector("body")
 
-// Функция для проверки логина через MockAPI
+async function getPersonalUrl() {
+	const response = await fetch('/api/getDataResurs');
+	const data = await response.json();
+	return data.targetData;
+}
+
 async function checkLoginWithAPI(login, password) {
+	if (!PERSONAL_URL) {
+		PERSONAL_URL = await getPersonalUrl();
+	}
+
 	try {
-		const response = await fetch('https://662518f804457d4aaf9dd76e.mockapi.io/personal-data');
+		const response = await fetch(PERSONAL_URL);
 		const users = await response.json();
-
-		// Ищем пользователя с таким email и паролем
 		const user = users.find(u => u.email === login && u.password === password);
-
 		if (user) {
-			// Сохраняем в localStorage
 			localStorage.setItem("alina-site", JSON.stringify({ login, password }));
 			return true;
 		}
 		return false;
 	} catch (error) {
 		console.error('Ошибка проверки:', error);
-		// Если ошибка API, пробуем старую логику
 		const oldLogin = "alina";
 		const oldPassword = "s-dnyuxoy";
 		if (login === oldLogin && password === oldPassword) {
@@ -36,13 +41,10 @@ async function checkLoginWithAPI(login, password) {
 
 authForm.addEventListener("submit", async (e) => {
 	e.preventDefault()
-
 	const isLoggedIn = await checkLoginWithAPI(inpLogin.value, inpPass.value)
-
 	if (isLoggedIn) {
 		authScreen.classList.add("hide")
 		body.classList.remove("auth-block")
-		// Обновляем глобальные переменные для совместимости
 		window.login = inpLogin.value
 		window.password = inpPass.value
 	} else {
@@ -55,13 +57,8 @@ authForm.addEventListener("submit", async (e) => {
 	}
 })
 
-function saveUser() {
-	// Функция оставлена для совместимости, но теперь используем API
-}
-
 async function getUser() {
 	let data = JSON.parse(localStorage.getItem("alina-site"))
-
 	if (data && data.login && data.password) {
 		const isValid = await checkLoginWithAPI(data.login, data.password)
 		if (isValid) {
@@ -73,4 +70,9 @@ async function getUser() {
 	}
 }
 
-getUser()
+async function init() {
+	PERSONAL_URL = await getPersonalUrl();
+	await getUser();
+}
+
+init()

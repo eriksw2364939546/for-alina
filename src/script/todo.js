@@ -1,10 +1,12 @@
-const URL = "https://662518f804457d4aaf9dd76e.mockapi.io/todo-List"
+// НЕТ хардкодных URL!
+
+let URL = null;
 
 let inp = document.querySelector(".plans__inp")
 let btn = document.querySelector("#add__plans")
 let list = document.querySelector(".plans__list")
 let counter = document.querySelector(".counter span")
-let counterParagraph = document.querySelector(".counter") // Добавил для полного текста
+let counterParagraph = document.querySelector(".counter")
 
 let plansList = []
 let plansComplete = []
@@ -16,32 +18,19 @@ let modalCancel = document.querySelector(".modal__cancel-btn")
 let modalInp = document.querySelector(".modal input")
 let select = document.querySelector("select")
 
-// Функция для склонения слова "план" (ДОБАВЛЕНА)
 function declinatePlans(count) {
 	const lastDigit = count % 10;
 	const lastTwoDigits = count % 100;
-
-	if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
-		return 'планов';
-	}
-
-	if (lastDigit === 1) {
-		return 'план';
-	}
-
-	if (lastDigit >= 2 && lastDigit <= 4) {
-		return 'плана';
-	}
-
+	if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return 'планов';
+	if (lastDigit === 1) return 'план';
+	if (lastDigit >= 2 && lastDigit <= 4) return 'плана';
 	return 'планов';
 }
 
-// Функция для обновления счетчика с правильным склонением (ДОБАВЛЕНА)
 function updateCounterWithDeclination(count) {
 	if (counter && counterParagraph) {
 		counter.innerHTML = count;
-		const planWord = declinatePlans(count);
-		counterParagraph.innerHTML = `У вас есть <span>${count}</span> ${planWord}!`;
+		counterParagraph.innerHTML = `У вас есть <span>${count}</span> ${declinatePlans(count)}!`;
 	}
 }
 
@@ -54,20 +43,17 @@ function renderWithFilter() {
 		renderPlans(plansList)
 		return
 	}
-
 	if (select.value == "complete") {
 		plansComplete = plansList.filter(e => e.complete)
 		renderPlans(plansComplete)
 		return
 	}
-
 	if (select.value == "process") {
 		plansProcess = plansList.filter(e => !e.complete)
 		renderPlans(plansProcess)
 		return
 	}
 }
-
 
 list.addEventListener("click", (event) => {
 	let cardId = event.target.closest(".card").dataset.id
@@ -79,7 +65,6 @@ list.addEventListener("click", (event) => {
 			if (data.text) {
 				plansList.splice(index, 1)
 				renderWithFilter()
-				// Обновляем счетчик после удаления
 				updateCounterWithDeclination(plansList.length)
 			}
 		})
@@ -133,23 +118,25 @@ modalInp.addEventListener("input", () => {
 	modalInp.style.background = "white"
 })
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
+	// Получаем URL через API эндпоинт, клиент не видит реальный URL
+	const response = await fetch('/api/getDataResurs');
+	const data = await response.json();
+	URL = data.targetList;  // берем из переменной, которая пришла с сервера
+
+	loadTodos();
+
 	btn.addEventListener("click", (e) => {
 		e.preventDefault()
-
 		if (inp.value == "") {
 			inp.style.border = "2px solid red"
 			inp.placeholder = "Enter text!"
 		} else {
-			let plansObject = {
-				text: inp.value,
-				complete: false
-			}
+			let plansObject = { text: inp.value, complete: false }
 			addTodo(plansObject).then(data => {
 				if (data.text) {
 					plansList.unshift(data)
 					renderPlans(plansList)
-					// Обновляем счетчик после добавления
 					updateCounterWithDeclination(plansList.length)
 				}
 			})
@@ -162,14 +149,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function renderPlans(array) {
 	list.innerHTML = ""
-
-	// Обновляем счетчик с правильным склонением
 	updateCounterWithDeclination(array.length)
-
 	array.forEach(element => {
 		let escapedValue = document.createElement('p')
 		escapedValue.innerText = element.text;
-
 		list.innerHTML += `
         <div class="card" data-id="${element.id}">
         <p class="${element.complete ? "complete-plan" : ""}">${escapedValue.innerHTML}</p> 
@@ -184,68 +167,42 @@ function renderPlans(array) {
 	})
 }
 
-
 async function getTodoList() {
-	try {
-		let res = await fetch(URL)
-		let data = await res.json()
-		return data
-	} catch (error) {
-		return error
-	}
+	let res = await fetch(URL)
+	return await res.json()
 }
 
 async function addTodo(newTask) {
-	try {
-		let res = await fetch(URL, {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify(newTask)
-		})
-
-		let data = res.json()
-		return data
-	} catch (error) {
-		return error
-	}
+	let res = await fetch(URL, {
+		method: 'POST',
+		headers: { 'content-type': 'application/json' },
+		body: JSON.stringify(newTask)
+	})
+	return await res.json()
 }
 
 async function deleteTodo(id) {
-	try {
-		let url = `${URL}/${id}`
-		let res = await fetch(url, {
-			method: 'DELETE',
-		})
-		let data = await res.json()
-		return data
-	} catch (error) {
-		return error
-	}
+	let res = await fetch(`${URL}/${id}`, { method: 'DELETE' })
+	return await res.json()
 }
 
 async function updateTodo(id, updateInfo) {
-	try {
-		let url = `${URL}/${id}`
-		let res = await fetch(url, {
-			method: 'PUT',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify(updateInfo)
-		})
-		let data = await res.json()
-		return data
-	} catch (error) {
-		return error
-	}
+	let res = await fetch(`${URL}/${id}`, {
+		method: 'PUT',
+		headers: { 'content-type': 'application/json' },
+		body: JSON.stringify(updateInfo)
+	})
+	return await res.json()
 }
 
-getTodoList().then(data => {
+async function loadTodos() {
+	const data = await getTodoList();
 	if (data && data.length > 0) {
 		plansList = data.sort((a, b) => +b.id - +a.id)
 		renderPlans(plansList)
-		// Обновляем счетчик при загрузке
 		updateCounterWithDeclination(plansList.length)
 	}
-})
+}
 
 function closeModal() {
 	modal.classList.remove("active-modal")
