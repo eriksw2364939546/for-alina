@@ -1,0 +1,206 @@
+/* Кнопка профиля */
+.profile-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s, box-shadow 0.3s;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.profile-btn svg {
+    width: 30px;
+    height: 30px;
+    fill: white;
+}
+
+/* Модальное окно профиля */
+.profile-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+}
+
+.profile-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.profile-modal__window {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s;
+}
+
+.profile-modal.active .profile-modal__window {
+    transform: scale(1);
+}
+
+.profile-modal__window h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+    text-align: center;
+}
+
+/* Контейнер для поля с паролем */
+.profile-modal__group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.profile-modal__group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #666;
+    font-weight: 500;
+}
+
+.profile-modal__group input[type="password"],
+.profile-modal__group input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    padding-right: 40px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+}
+
+.profile-modal__group input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Кнопка показа/скрытия пароля */
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+}
+
+.password-toggle:hover {
+    opacity: 1;
+}
+
+.password-toggle svg {
+    width: 20px;
+    height: 20px;
+    fill: #666;
+}
+
+/* Для поля email такой же отступ справа, чтобы было единообразно */
+.profile-modal__group:first-of-type input {
+    padding-right: 12px;
+}
+
+.profile-modal__message {
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 14px;
+    display: none;
+}
+
+.profile-modal__message.success {
+    background: #d4edda;
+    color: #155724;
+    display: block;
+}
+
+.profile-modal__message.error {
+    background: #f8d7da;
+    color: #721c24;
+    display: block;
+}
+
+.profile-modal__buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.profile-modal__save {
+    flex: 1;
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.profile-modal__save:hover {
+    opacity: 0.9;
+}
+
+.profile-modal__save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.profile-modal__cancel {
+    flex: 1;
+    padding: 12px;
+    background: #e0e0e0;
+    border: none;
+    border-radius: 10px;
+    color: #666;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.profile-modal__cancel:hover {
+    background: #d0d0d0;
+}
+
+@media all and (max-width: 768px) {
+    .profile-btn {
+        width: 45px;
+        height: 45px;
+        bottom: 15px;
+    }
+}

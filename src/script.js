@@ -1,3 +1,4 @@
+// подключение к personal-data делаем здесь
 let authForm = document.querySelector(".auth form")
 let inpLogin = document.querySelector(".auth .login")
 let inpPass = document.querySelector(".auth .password")
@@ -5,15 +6,45 @@ let authError = document.querySelector(".auth p")
 let authScreen = document.querySelector(".auth")
 let body = document.querySelector("body")
 
-let login = "alina"
-let password = "s-dnyuxoy"
+// Функция для проверки логина через MockAPI
+async function checkLoginWithAPI(login, password) {
+	try {
+		const response = await fetch('https://662518f804457d4aaf9dd76e.mockapi.io/personal-data');
+		const users = await response.json();
 
-authForm.addEventListener("submit", (e) => {
+		// Ищем пользователя с таким email и паролем
+		const user = users.find(u => u.email === login && u.password === password);
+
+		if (user) {
+			// Сохраняем в localStorage
+			localStorage.setItem("alina-site", JSON.stringify({ login, password }));
+			return true;
+		}
+		return false;
+	} catch (error) {
+		console.error('Ошибка проверки:', error);
+		// Если ошибка API, пробуем старую логику
+		const oldLogin = "alina";
+		const oldPassword = "s-dnyuxoy";
+		if (login === oldLogin && password === oldPassword) {
+			localStorage.setItem("alina-site", JSON.stringify({ login, password }));
+			return true;
+		}
+		return false;
+	}
+}
+
+authForm.addEventListener("submit", async (e) => {
 	e.preventDefault()
-	if (inpLogin.value === login && inpPass.value === password) {
-		saveUser()
+
+	const isLoggedIn = await checkLoginWithAPI(inpLogin.value, inpPass.value)
+
+	if (isLoggedIn) {
 		authScreen.classList.add("hide")
 		body.classList.remove("auth-block")
+		// Обновляем глобальные переменные для совместимости
+		window.login = inpLogin.value
+		window.password = inpPass.value
 	} else {
 		authError.innerHTML = "Wrong password or login!"
 		setTimeout(() => {
@@ -25,17 +56,21 @@ authForm.addEventListener("submit", (e) => {
 })
 
 function saveUser() {
-	localStorage.setItem("alina-site", JSON.stringify({ login, password }))
+	// Функция оставлена для совместимости, но теперь используем API
 }
 
-function getUser() {
+async function getUser() {
 	let data = JSON.parse(localStorage.getItem("alina-site"))
 
-	if (data && data.login === login && data.password === password) {
-		authScreen.classList.add("hide")
-		body.classList.remove("auth-block")
+	if (data && data.login && data.password) {
+		const isValid = await checkLoginWithAPI(data.login, data.password)
+		if (isValid) {
+			authScreen.classList.add("hide")
+			body.classList.remove("auth-block")
+			window.login = data.login
+			window.password = data.password
+		}
 	}
 }
 
 getUser()
-
